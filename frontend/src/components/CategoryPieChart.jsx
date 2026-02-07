@@ -18,7 +18,7 @@ export function CategoryPieChart({ data }) {
     <div className="flex flex-col items-center justify-center">
       <div className="relative w-[200px] h-[200px]">
         <svg width={200} height={200} viewBox="0 0 200 200" className="transform -rotate-90">
-          <circle cx={100} cy={100} r={radius} fill="none" stroke="#f3f4f6" strokeWidth={20} />
+          <circle cx={100} cy={100} r={radius} fill="none" stroke="currentColor" className="text-gray-100 dark:text-gray-700" strokeWidth={20} />
           {processedData.map((category, index) => {
             if (category.value <= 0) return null;
             const percentage = (category.value / total) * 100
@@ -42,8 +42,8 @@ export function CategoryPieChart({ data }) {
           })}
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-          <p className="text-xs text-gray-500">Total Spending</p>
-          <p className="text-xl font-bold text-gray-900">{formatBhat(total)}</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400">Total Spending</p>
+          <p className="text-xl font-bold text-gray-900 dark:text-white transition-colors duration-300">{formatBhat(total)}</p>
         </div>
       </div>
     </div>

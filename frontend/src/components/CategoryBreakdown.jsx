@@ -30,16 +30,16 @@ export function CategoryBreakdown({ filters }) {
 
   if (loading) {
     return (
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <div className="text-center py-12"><p className="text-gray-500">Loading...</p></div>
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 transition-colors duration-300">
+        <div className="text-center py-12"><p className="text-gray-500 dark:text-gray-400">Loading...</p></div>
       </div>
     )
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 transition-colors duration-300">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-lg font-semibold text-gray-900">Category Breakdown</h2>
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-white transition-colors duration-300">Category Breakdown</h2>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <CategoryPieChart data={categories} />
@@ -48,11 +48,11 @@ export function CategoryBreakdown({ filters }) {
             <div key={index} className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
                 <div className="w-3 h-3 rounded-full" style={{ backgroundColor: category.color }} />
-                <span className="text-sm text-gray-700">{category.category}</span>
+                <span className="text-sm text-gray-700 dark:text-gray-300">{category.category}</span>
               </div>
               <div className="text-sm">
-                <span className="font-medium text-gray-900">{formatCurrency(category.amount)}</span>
-                <span className="text-gray-500 ml-2">({((category.amount / total) * 100).toFixed(1)}%)</span>
+                <span className="font-medium text-gray-900 dark:text-white">{formatCurrency(category.amount)}</span>
+                <span className="text-gray-500 dark:text-gray-400 ml-2">({((category.amount / total) * 100).toFixed(1)}%)</span>
               </div>
             </div>
           ))}

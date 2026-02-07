@@ -32,17 +32,17 @@ function App() {
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm transition-colors duration-300">
           <div>
-            <h2 className="text-sm font-medium text-gray-500">Filter Period</h2>
+            <h2 className="text-sm font-medium text-gray-500 dark:text-gray-400">Filter Period</h2>
             <div className="mt-1 flex items-center space-x-2">
-              <Calendar className="w-4 h-4 text-blue-600" />
-              <span className="text-sm font-semibold text-gray-900">
+              <Calendar className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+              <span className="text-sm font-semibold text-gray-900 dark:text-white transition-colors duration-300">
                 {period === '1d' ? 'Today' : period === '7d' ? 'Last 7 Days' : period === '1m' ? 'Last 30 Days' : 'All Time'}
               </span>
             </div>
           </div>
-          <div className="flex bg-gray-100 p-1 rounded-md">
+          <div className="flex bg-gray-100 dark:bg-gray-700 p-1 rounded-md transition-colors duration-300">
             {[
               { id: '1d', label: '1 Day' },
               { id: '7d', label: '7 Days' },
@@ -54,8 +54,8 @@ function App() {
                 onClick={() => setPeriod(p.id)}
                 className={`px-4 py-1.5 text-xs font-medium rounded-md transition-all ${
                   period === p.id
-                    ? 'bg-white text-blue-600 shadow-sm'
-                    : 'text-gray-500 hover:text-gray-700'
+                    ? 'bg-white dark:bg-gray-600 text-blue-600 dark:text-blue-300 shadow-sm'
+                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
                 }`}
               >
                 {p.label}
@@ -72,7 +72,7 @@ function App() {
         </div>
         
         <div className="space-y-4">
-          <h2 className="text-xl font-bold text-gray-900 px-1">Raw Transactions</h2>
+          <h2 className="text-xl font-bold text-gray-900 dark:text-white px-1 transition-colors duration-300">Raw Transactions</h2>
           <TransactionsTable filters={dateRange} />
         </div>
       </div>

@@ -38,22 +38,22 @@ export function SummaryCards({ filters }) {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <p className="text-sm font-medium text-gray-500">Total Spending</p>
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 transition-colors duration-300">
+        <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Total Spending</p>
         <div className="text-2xl font-bold text-red-600 mt-1">{f(data.e)}</div>
       </div>
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <p className="text-sm font-medium text-gray-500">Total Income</p>
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 transition-colors duration-300">
+        <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Total Income</p>
         <div className="text-2xl font-bold text-green-600 mt-1">{f(data.i)}</div>
       </div>
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <p className="text-sm font-medium text-gray-500">Net Balance</p>
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 transition-colors duration-300">
+        <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Net Balance</p>
         <div className={`text-2xl font-bold mt-1 ${data.b >= 0 ? 'text-green-600' : 'text-red-600'}`}>
           {data.b >= 0 ? '' : '-'}{f(data.b)}
         </div>
       </div>
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <p className="text-sm font-medium text-gray-500">Transactions</p>
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 transition-colors duration-300">
+        <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Transactions</p>
         <div className="text-2xl font-bold text-blue-600 mt-1">{data.c}</div>
       </div>
     </div>
