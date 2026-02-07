@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { MoreHorizontal, Search, ChevronDown, ChevronUp, Loader2, Download } from 'lucide-react'
 
-export function TransactionsTable({ filters, platformFilter }) {
+export function TransactionsTable({ filters, platformFilter, categoryFilter }) {
   const [transactions, setTransactions] = useState([])
   const [filter, setFilter] = useState('')
   const [loading, setLoading] = useState(true)
@@ -31,6 +31,10 @@ export function TransactionsTable({ filters, platformFilter }) {
         if (filters?.from) params.append('date_from', filters.from);
         if (filters?.to) params.append('date_to', filters.to);
         if (platformFilter && platformFilter !== 'all') params.append('platform', platformFilter);
+        // Add category filter if multiple categories are selected
+        if (categoryFilter && categoryFilter.length > 0) {
+          categoryFilter.forEach(cat => params.append('category', cat));
+        }
 
         const response = await fetch(`/api/transactions?${params.toString()}`);
         const data = await response.json();
@@ -42,7 +46,7 @@ export function TransactionsTable({ filters, platformFilter }) {
       }
     };
     fetchTransactions();
-  }, [filters, platformFilter])
+  }, [filters, platformFilter, categoryFilter])
 
   const toggleRow = (id) => {
     const newExpanded = new Set(expandedRows)

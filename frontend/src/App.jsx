@@ -10,8 +10,11 @@ function App() {
   const [period, setPeriod] = useState('all') // 1d, 7d, 1m, all
   const [dateRange, setDateRange] = useState({ from: '', to: '' })
   const [platformFilter, setPlatformFilter] = useState('all')
+  const [categoryFilter, setCategoryFilter] = useState([])
   const [showDateRange, setShowDateRange] = useState(false)
   const [showPlatformFilter, setShowPlatformFilter] = useState(false)
+  const [showCategoryFilter, setShowCategoryFilter] = useState(false)
+  const [allCategories, setAllCategories] = useState([])
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear())
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth() + 1)
 
@@ -42,7 +45,9 @@ function App() {
     fetch('/api/categories')
       .then(res => res.json())
       .then(data => {
-        // No-op for now as category filter is not yet implemented
+        if (data.success) {
+          setAllCategories(data.data || [])
+        }
       })
       .catch(err => console.error('Error fetching categories:', err))
   }, [])
@@ -157,6 +162,52 @@ function App() {
           </div>
         )}
 
+        {/* Advanced Filters - Category Selector */}
+        {showCategoryFilter && (
+          <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm transition-colors duration-300 animate-fadeIn">
+            <div className="flex items-center gap-2 mb-3">
+              <Filter className="w-4 h-4 text-orange-600 dark:text-orange-400" />
+              <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Select Categories</h3>
+              <span className="text-xs text-gray-500 dark:text-gray-400">Multi-select allowed</span>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+              {allCategories.map((category) => (
+                <button
+                  key={category.name}
+                  onClick={() => {
+                    const isSelected = categoryFilter.includes(category.name)
+                    if (isSelected) {
+                      setCategoryFilter(categoryFilter.filter(c => c !== category.name))
+                    } else {
+                      setCategoryFilter([...categoryFilter, category.name])
+                    }
+                  }}
+                  className={`px-3 py-2 text-xs font-medium rounded-md transition-all ${
+                    categoryFilter.includes(category.name)
+                      ? 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 border-2 border-orange-500'
+                      : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                  }`}
+                  style={{
+                    borderLeft: `3px solid ${category.color || '#000000'}`
+                  }}
+                >
+                  {category.name}
+                </button>
+              ))}
+              <button
+                onClick={() => setCategoryFilter([])}
+                className={`px-3 py-2 text-xs font-medium rounded-md transition-all ${
+                  categoryFilter.length === 0
+                    ? 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 border-2 border-orange-500'
+                    : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                }`}
+              >
+                All Categories
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Filter Buttons */}
         <div className="flex flex-wrap gap-2">
           <button
@@ -181,10 +232,21 @@ function App() {
             <Filter className="w-4 h-4" />
             Platform Filter
           </button>
+          <button
+            onClick={() => setShowCategoryFilter(!showCategoryFilter)}
+            className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md transition-all ${
+              showCategoryFilter
+                ? 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 border-2 border-orange-500'
+                : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-2 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700'
+            }`}
+          >
+            <Filter className="w-4 h-4" />
+            Category Filter
+          </button>
         </div>
 
         {/* Active Filters Display */}
-        {(platformFilter !== 'all' || showDateRange) && (
+        {(platformFilter !== 'all' || showDateRange || categoryFilter.length > 0) && (
           <div className="flex flex-wrap items-center gap-4 bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg border border-blue-200 dark:border-blue-800">
             {platformFilter !== 'all' && (
               <div className="flex items-center gap-2 text-sm text-blue-700 dark:text-blue-300">
@@ -192,6 +254,21 @@ function App() {
                 <span className="font-semibold bg-white dark:bg-gray-800 px-2 py-1 rounded-md border border-blue-200 dark:border-blue-700">
                   {platformFilter}
                 </span>
+              </div>
+            )}
+            {categoryFilter.length > 0 && (
+              <div className="flex items-center gap-2 text-sm text-orange-700 dark:text-orange-300">
+                <span>Categories:</span>
+                <div className="flex flex-wrap gap-1">
+                  {categoryFilter.map(cat => (
+                    <span
+                      key={cat}
+                      className="font-semibold bg-white dark:bg-gray-800 px-2 py-1 rounded-md border border-orange-200 dark:border-orange-700"
+                    >
+                      {cat}
+                    </span>
+                  ))}
+                </div>
               </div>
             )}
             {showDateRange && (
@@ -205,7 +282,7 @@ function App() {
           </div>
         )}
 
-        <SummaryCards filters={dateRange} platformFilter={platformFilter} />
+        <SummaryCards filters={dateRange} platformFilter={platformFilter} categoryFilter={categoryFilter} />
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
           <CategoryBreakdown filters={dateRange} />
           <SpendingTrend filters={dateRange} />
@@ -214,7 +291,7 @@ function App() {
           <h2 className="text-xl font-bold text-gray-900 dark:text-white px-1 transition-colors duration-300">
             Raw Transactions
           </h2>
-          <TransactionsTable filters={dateRange} platformFilter={platformFilter} />
+          <TransactionsTable filters={dateRange} platformFilter={platformFilter} categoryFilter={categoryFilter} />
         </div>
       </div>
     </DashboardLayout>
