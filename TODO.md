@@ -38,9 +38,9 @@
     - [x] Custom Date Range Picker (Calendar integration)
     - [x] **Platform Filtering** (Filter by K PLUS, LINE Pay, Shopee, etc.)
     - [ ] **Category Filter Enhancements** (Multi-select categories)
-- [ ] **Advanced Table Features:**
-    - [ ] Sorting functionality (By Date, Amount, Category)
-    - [ ] Data Export (Download current view as CSV/JSON)
+- [x] **Advanced Table Features:**
+    - [x] Sorting functionality (By Date, Amount, Category)
+    - [x] Data Export (Download current view as CSV/JSON)
 - [ ] Final Testing with heavy transaction loads
 - [x] Project Documentation (README.md)
 
