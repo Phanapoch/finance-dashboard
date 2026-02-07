@@ -10,11 +10,8 @@ function App() {
   const [period, setPeriod] = useState('all') // 1d, 7d, 1m, all
   const [dateRange, setDateRange] = useState({ from: '', to: '' })
   const [platformFilter, setPlatformFilter] = useState('all')
-  const [categoryFilter, setCategoryFilter] = useState([])
-  const [allCategories, setAllCategories] = useState([])
   const [showDateRange, setShowDateRange] = useState(false)
   const [showPlatformFilter, setShowPlatformFilter] = useState(false)
-  const [showCategoryFilter, setShowCategoryFilter] = useState(false)
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear())
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth() + 1)
 
@@ -45,9 +42,7 @@ function App() {
     fetch('/api/categories')
       .then(res => res.json())
       .then(data => {
-        // Only keep expense categories
-        const expenseCategories = data.data.filter(cat => cat.type === 'expense')
-        setAllCategories(expenseCategories)
+        // No-op for now as category filter is not yet implemented
       })
       .catch(err => console.error('Error fetching categories:', err))
   }, [])
