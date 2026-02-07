@@ -55,7 +55,8 @@ async def get_transactions_api(
     date_from: Optional[str] = Query(None, description="Filter by date from (YYYY-MM-DD)"),
     date_to: Optional[str] = Query(None, description="Filter by date to (YYYY-MM-DD)"),
     category: Optional[str] = Query(None, description="Filter by category"),
-    transaction_type: Optional[str] = Query("expense", description="Filter by transaction type")
+    transaction_type: Optional[str] = Query("expense", description="Filter by transaction type"),
+    platform: Optional[str] = Query(None, description="Filter by platform")
 ) -> Dict[str, Any]:
     """
     Get all transactions with optional filters.
@@ -64,6 +65,7 @@ async def get_transactions_api(
     - **date_to**: End date filter (YYYY-MM-DD format)
     - **category**: Category filter
     - **transaction_type**: Transaction type (expense/income)
+    - **platform**: Platform filter (e.g., K PLUS, LINE Pay, Shopee, etc.)
     """
     filters = {}
     if date_from:
@@ -74,6 +76,8 @@ async def get_transactions_api(
         filters['category'] = category
     if transaction_type:
         filters['transaction_type'] = transaction_type
+    if platform:
+        filters['platform'] = platform
 
     transactions = get_transactions(filters)
 
@@ -163,6 +167,50 @@ async def get_summary_by_date_api(
     }
 
 
+@app.get("/api/summary/platform")
+async def get_summary_by_platform_api(
+    date_from: Optional[str] = Query(None, description="Filter by date from (YYYY-MM-DD)"),
+    date_to: Optional[str] = Query(None, description="Filter by date to (YYYY-MM-DD)")
+) -> Dict[str, Any]:
+    """
+    Get transaction summary grouped by platform.
+
+    - **date_from**: Start date filter (YYYY-MM-DD format)
+    - **date_to**: End date filter (YYYY-MM-DD format)
+    """
+    filters = {}
+    if date_from:
+        filters['date_from'] = date_from
+    if date_to:
+        filters['date_to'] = date_to
+
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        query = '''
+            SELECT platform, SUM(amount) as total, COUNT(*) as count
+            FROM transactions
+            WHERE 1=1
+        '''
+        params = []
+
+        if filters.get('date_from'):
+            query += " AND date >= ?"
+            params.append(filters['date_from'])
+        if filters.get('date_to'):
+            query += " AND date <= ?"
+            params.append(filters['date_to'])
+
+        query += " GROUP BY platform ORDER BY total DESC"
+        cursor.execute(query, params)
+        summary = [dict(row) for row in cursor.fetchall()]
+
+    return {
+        "success": True,
+        "data": summary,
+        "count": len(summary)
+    }
+
+
 @app.get("/api/categories")
 async def get_categories_api() -> Dict[str, Any]:
     """
@@ -183,6 +231,28 @@ async def get_categories_api() -> Dict[str, Any]:
     return {
         "success": True,
         "data": result
+    }
+
+
+@app.get("/api/platforms")
+async def get_platforms_api() -> Dict[str, Any]:
+    """
+    Get all unique platforms from transactions.
+    """
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute('''
+            SELECT DISTINCT platform
+            FROM transactions
+            WHERE platform IS NOT NULL
+            AND platform != ''
+            ORDER BY platform
+        ''')
+        platforms = [row['platform'] for row in cursor.fetchall()]
+
+    return {
+        "success": True,
+        "data": platforms
     }
 
 

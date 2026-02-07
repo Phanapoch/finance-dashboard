@@ -85,10 +85,13 @@ def _parse_items(description: str):
 
 
 def get_transactions(filters: Optional[Dict[str, Any]] = None) -> List[Dict]:
-    """Fetch transactions with optional filters and item parsing."""
+    """Fetch transactions with optional filters and real items from the items table."""
     with get_db_connection() as conn:
         cursor = conn.cursor()
-        query = "SELECT id, date, amount, category, description, 'expense' as transaction_type FROM transactions WHERE 1=1"
+        query = """
+            SELECT id, date, amount, category, description, 'expense' as transaction_type, platform
+            FROM transactions WHERE 1=1
+        """
         params = []
 
         if filters:
@@ -101,32 +104,57 @@ def get_transactions(filters: Optional[Dict[str, Any]] = None) -> List[Dict]:
             if filters.get('category'):
                 query += " AND category = ?"
                 params.append(filters['category'])
+            if filters.get('platform'):
+                query += " AND platform = ?"
+                params.append(filters['platform'])
 
         query += " ORDER BY date DESC"
         cursor.execute(query, params)
         rows = cursor.fetchall()
-        
+
         result = []
         for row in rows:
             d = dict(row)
-            items = _parse_items(d['description'])
-            d['items'] = items
-            d['item_count'] = len(items)
+            # Fetch real items from 'items' table
+            cursor.execute("SELECT name, quantity, unit_price FROM items WHERE transaction_id = ?", (d['id'],))
+            db_items = cursor.fetchall()
+            
+            if db_items:
+                items = [f"{item['name']} (x{int(item['quantity'])})" if item['quantity'] > 1 else item['name'] for item in db_items]
+                d['items'] = items
+                d['item_count'] = len(items)
+            else:
+                # Fallback to description parsing if no items in table
+                items = _parse_items(d['description'])
+                d['items'] = items
+                d['item_count'] = len(items)
+                
             result.append(d)
         return result
 
 
 def get_transaction_by_id(transaction_id: str) -> Optional[Dict]:
-    """Fetch a single transaction by ID."""
+    """Fetch a single transaction by ID with real items."""
     with get_db_connection() as conn:
         cursor = conn.cursor()
         cursor.execute('SELECT *, "expense" as transaction_type FROM transactions WHERE id = ?', (transaction_id,))
         row = cursor.fetchone()
         if not row: return None
         d = dict(row)
-        items = _parse_items(d['description'])
-        d['items'] = items
-        d['item_count'] = len(items)
+        
+        # Fetch real items
+        cursor.execute("SELECT name, quantity, unit_price FROM items WHERE transaction_id = ?", (transaction_id,))
+        db_items = cursor.fetchall()
+        
+        if db_items:
+            items = [f"{item['name']} (x{int(item['quantity'])})" if item['quantity'] > 1 else item['name'] for item in db_items]
+            d['items'] = items
+            d['item_count'] = len(items)
+        else:
+            items = _parse_items(d['description'])
+            d['items'] = items
+            d['item_count'] = len(items)
+            
         return d
 
 

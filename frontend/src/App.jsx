@@ -4,16 +4,24 @@ import { SummaryCards } from './components/SummaryCards'
 import { CategoryBreakdown } from './components/CategoryBreakdown'
 import { SpendingTrend } from './components/SpendingTrend'
 import { TransactionsTable } from './components/TransactionsTable'
-import { Calendar } from 'lucide-react'
+import { Calendar, Filter, CalendarRange } from 'lucide-react'
 
 function App() {
   const [period, setPeriod] = useState('all') // 1d, 7d, 1m, all
   const [dateRange, setDateRange] = useState({ from: '', to: '' })
+  const [platformFilter, setPlatformFilter] = useState('all')
+  const [categoryFilter, setCategoryFilter] = useState([])
+  const [allCategories, setAllCategories] = useState([])
+  const [showDateRange, setShowDateRange] = useState(false)
+  const [showPlatformFilter, setShowPlatformFilter] = useState(false)
+  const [showCategoryFilter, setShowCategoryFilter] = useState(false)
+  const [currentYear, setCurrentYear] = useState(new Date().getFullYear())
+  const [currentMonth, setCurrentMonth] = useState(new Date().getMonth() + 1)
 
   useEffect(() => {
     const now = new Date()
     let fromDate = ''
-    
+
     if (period === '1d') {
       fromDate = now.toISOString().split('T')[0]
     } else if (period === '7d') {
@@ -24,30 +32,55 @@ function App() {
       const oneMonthAgo = new Date(now)
       oneMonthAgo.setMonth(now.getMonth() - 1)
       fromDate = oneMonthAgo.toISOString().split('T')[0]
+    } else if (period === 'custom') {
+      // Custom date range - use current month as default
+      fromDate = `${currentYear}-${String(currentMonth).padStart(2, '0')}-01`
     }
 
     setDateRange({ from: fromDate, to: '' }) // to empty means till today
-  }, [period])
+  }, [period, currentYear, currentMonth])
+
+  useEffect(() => {
+    // Fetch all categories when component mounts
+    fetch('/api/categories')
+      .then(res => res.json())
+      .then(data => {
+        // Only keep expense categories
+        const expenseCategories = data.data.filter(cat => cat.type === 'expense')
+        setAllCategories(expenseCategories)
+      })
+      .catch(err => console.error('Error fetching categories:', err))
+  }, [])
+
+  const getPlatformFilterLabel = () => {
+    if (platformFilter === 'all') return 'All Platforms'
+    return platformFilter
+  }
+
+  const allPlatforms = ['K PLUS', 'LINE Pay', 'Shopee', '7-Eleven', 'Grab', 'GrabFood', 'K-Bank', 'KBANK', 'Manual']
 
   return (
     <DashboardLayout>
       <div className="space-y-6">
+        {/* Main Filter Bar */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm transition-colors duration-300">
-          <div>
-            <h2 className="text-sm font-medium text-gray-500 dark:text-gray-400">Filter Period</h2>
-            <div className="mt-1 flex items-center space-x-2">
+          <div className="flex-1">
+            <h2 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Filter Period</h2>
+            <div className="flex items-center gap-2">
               <Calendar className="w-4 h-4 text-blue-600 dark:text-blue-400" />
               <span className="text-sm font-semibold text-gray-900 dark:text-white transition-colors duration-300">
-                {period === '1d' ? 'Today' : period === '7d' ? 'Last 7 Days' : period === '1m' ? 'Last 30 Days' : 'All Time'}
+                {period === '1d' ? 'Today' : period === '7d' ? 'Last 7 Days' : period === '1m' ? 'Last 30 Days' : period === 'custom' ? 'Custom Date' : 'All Time'}
               </span>
             </div>
           </div>
+
           <div className="flex bg-gray-100 dark:bg-gray-700 p-1 rounded-md transition-colors duration-300">
             {[
+              { id: 'all', label: 'All Time' },
               { id: '1d', label: '1 Day' },
               { id: '7d', label: '7 Days' },
               { id: '1m', label: '1 Month' },
-              { id: 'all', label: 'All Time' },
+              { id: 'custom', label: 'Custom' },
             ].map((p) => (
               <button
                 key={p.id}
@@ -64,16 +97,129 @@ function App() {
           </div>
         </div>
 
-        <SummaryCards filters={dateRange} />
-        
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Advanced Filters - Date Range Picker */}
+        {showDateRange && (
+          <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm transition-colors duration-300 animate-fadeIn">
+            <div className="flex items-center gap-2 mb-3">
+              <CalendarRange className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+              <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Select Date Range</h3>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="text-xs text-gray-500 dark:text-gray-400 block mb-1">From</label>
+                <input
+                  type="date"
+                  value={dateRange.from}
+                  onChange={(e) => setDateRange({ ...dateRange, from: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 outline-none"
+                />
+              </div>
+              <div>
+                <label className="text-xs text-gray-500 dark:text-gray-400 block mb-1">To</label>
+                <input
+                  type="date"
+                  value={dateRange.to}
+                  onChange={(e) => setDateRange({ ...dateRange, to: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 outline-none"
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Advanced Filters - Platform Selector */}
+        {showPlatformFilter && (
+          <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm transition-colors duration-300 animate-fadeIn">
+            <div className="flex items-center gap-2 mb-3">
+              <Filter className="w-4 h-4 text-green-600 dark:text-green-400" />
+              <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Select Platform</h3>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+              {allPlatforms.map((platform) => (
+                <button
+                  key={platform}
+                  onClick={() => setPlatformFilter(platform)}
+                  className={`px-3 py-2 text-xs font-medium rounded-md transition-all ${
+                    platformFilter === platform
+                      ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border-2 border-blue-500'
+                      : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                  }`}
+                >
+                  {platform}
+                </button>
+              ))}
+              <button
+                onClick={() => setPlatformFilter('all')}
+                className={`px-3 py-2 text-xs font-medium rounded-md transition-all ${
+                  platformFilter === 'all'
+                    ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border-2 border-blue-500'
+                    : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                }`}
+              >
+                All Platforms
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Filter Buttons */}
+        <div className="flex flex-wrap gap-2">
+          <button
+            onClick={() => setShowDateRange(!showDateRange)}
+            className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md transition-all ${
+              showDateRange
+                ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 border-2 border-purple-500'
+                : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-2 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700'
+            }`}
+          >
+            <CalendarRange className="w-4 h-4" />
+            Date Range
+          </button>
+          <button
+            onClick={() => setShowPlatformFilter(!showPlatformFilter)}
+            className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md transition-all ${
+              showPlatformFilter
+                ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 border-2 border-green-500'
+                : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-2 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700'
+            }`}
+          >
+            <Filter className="w-4 h-4" />
+            Platform Filter
+          </button>
+        </div>
+
+        {/* Active Filters Display */}
+        {(platformFilter !== 'all' || showDateRange) && (
+          <div className="flex flex-wrap items-center gap-4 bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg border border-blue-200 dark:border-blue-800">
+            {platformFilter !== 'all' && (
+              <div className="flex items-center gap-2 text-sm text-blue-700 dark:text-blue-300">
+                <span>Platform:</span>
+                <span className="font-semibold bg-white dark:bg-gray-800 px-2 py-1 rounded-md border border-blue-200 dark:border-blue-700">
+                  {platformFilter}
+                </span>
+              </div>
+            )}
+            {showDateRange && (
+              <div className="flex items-center gap-2 text-sm text-blue-700 dark:text-blue-300">
+                <span>Range:</span>
+                <span className="font-semibold bg-white dark:bg-gray-800 px-2 py-1 rounded-md border border-blue-200 dark:border-blue-700">
+                  {dateRange.from || 'Select date'} {dateRange.to ? 'to ' + dateRange.to : ''}
+                </span>
+              </div>
+            )}
+          </div>
+        )}
+
+        <SummaryCards filters={dateRange} platformFilter={platformFilter} />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
           <CategoryBreakdown filters={dateRange} />
           <SpendingTrend filters={dateRange} />
         </div>
-        
         <div className="space-y-4">
-          <h2 className="text-xl font-bold text-gray-900 dark:text-white px-1 transition-colors duration-300">Raw Transactions</h2>
-          <TransactionsTable filters={dateRange} />
+          <h2 className="text-xl font-bold text-gray-900 dark:text-white px-1 transition-colors duration-300">
+            Raw Transactions
+          </h2>
+          <TransactionsTable filters={dateRange} platformFilter={platformFilter} />
         </div>
       </div>
     </DashboardLayout>

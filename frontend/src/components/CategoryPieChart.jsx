@@ -15,7 +15,7 @@ export function CategoryPieChart({ data }) {
   const formatBhat = (val) => "฿" + Number(val).toLocaleString(undefined, { minimumFractionDigits: 2 });
 
   return (
-    <div className="flex flex-col items-center justify-center">
+    <div className="flex flex-col items-center justify-center hover-lift transition-all duration-300">
       <div className="relative w-[200px] h-[200px]">
         <svg width={200} height={200} viewBox="0 0 200 200" className="transform -rotate-90">
           <circle cx={100} cy={100} r={radius} fill="none" stroke="currentColor" className="text-gray-100 dark:text-gray-700" strokeWidth={20} />
@@ -43,7 +43,7 @@ export function CategoryPieChart({ data }) {
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
           <p className="text-xs text-gray-500 dark:text-gray-400">Total Spending</p>
-          <p className="text-xl font-bold text-gray-900 dark:text-white transition-colors duration-300">{formatBhat(total)}</p>
+          <p className="text-xl font-bold text-gray-900 dark:text-white transition-colors duration-300 animate-fadeIn">{formatBhat(total)}</p>
         </div>
       </div>
     </div>
