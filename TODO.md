@@ -23,19 +23,20 @@
 - [x] Connect Frontend to Backend API (Full integration)
 - [x] Thai Baht (฿) Localization & Formatting
 - [x] Database Deduplication & Data Integrity fixes
+    - [x] Fixed fetching real items from `items` table (Backend & UI)
 - [x] UI/UX Refinement (Animations & Polish)
     - [x] Card entrance animations (fadeInUp with staggered delays)
     - [x] Hover lift effects on cards and table rows
     - [x] Button hover effects
-    - [x] Loading shimmer effects
+    - [x] Loading shimmer effects (Fixed to show only during loading)
     - [x] Fade-in animations for content
     - [x] Chart container animations
     - [x] Dark mode transition effects
     - [x] Pulse animations for loading states
-- [ ] Implement Advanced Filtering System:
-    - [ ] Month/Year Selector (View data by specific month)
-    - [ ] Custom Date Range Picker (Calendar integration)
-    - [ ] **Platform Filtering** (Filter by K PLUS, LINE Pay, Shopee, etc.)
+- [x] Implement Advanced Filtering System:
+    - [x] Month/Year Selector (Implemented via Custom Date Range)
+    - [x] Custom Date Range Picker (Calendar integration)
+    - [x] **Platform Filtering** (Filter by K PLUS, LINE Pay, Shopee, etc.)
     - [ ] **Category Filter Enhancements** (Multi-select categories)
 - [ ] **Advanced Table Features:**
     - [ ] Sorting functionality (By Date, Amount, Category)
