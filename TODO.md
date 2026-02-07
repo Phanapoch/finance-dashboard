@@ -44,5 +44,24 @@
 - [x] Final Testing with heavy transaction loads (Skipped by user request to prevent data issues)
 - [x] Project Documentation (README.md)
 
+## Phase 4: Data Management & Editing (UPCOMING 🚀)
+- [ ] **Transaction Editing:**
+    - [ ] Edit transaction description and category
+    - [ ] Update transaction amount and date
+    - [ ] Modify platform association
+- [ ] **Item Management:**
+    - [ ] Edit individual items within a transaction (name, quantity, price)
+    - [ ] Add/Remove items from existing transactions
+- [ ] **CRUD Operations:**
+    - [ ] Manual Add: Create new transactions from scratch
+    - [ ] Delete: Safely remove transactions and associated items
+- [ ] **Backend Support:**
+    - [ ] Implement PUT/PATCH endpoints for updates
+    - [ ] Implement POST endpoint for manual additions
+    - [ ] Implement DELETE endpoints
+- [ ] **UI Integration:**
+    - [ ] Edit Modal/Form for transactions
+    - [ ] Inline editing or detailed edit view for items
+
 ---
-*Status: The dashboard is now functional and synced with real data.* 🧚‍♀️✨
+*Status: Phase 3 nearly complete. Planning Phase 4 for manual data control.* 🧚‍♀️✨
