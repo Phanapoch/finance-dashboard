@@ -41,7 +41,7 @@
 - [x] **Advanced Table Features:**
     - [x] Sorting functionality (By Date, Amount, Category)
     - [x] Data Export (Download current view as CSV/JSON)
-- [ ] Final Testing with heavy transaction loads
+- [x] Final Testing with heavy transaction loads (Skipped by user request to prevent data issues)
 - [x] Project Documentation (README.md)
 
 ---
