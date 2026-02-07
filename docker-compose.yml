@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: finance-backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+      - /home/ice/.openclaw/workspace-finance/db:/data
+    environment:
+      - DATABASE_URL=sqlite:///data/finance.db
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    networks:
+      - finance-network
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: finance-frontend
+    ports:
+      - "3000:80"
+    volumes:
+      - ./frontend/dist:/usr/share/nginx/html
+    environment:
+      - VITE_API_URL=http://localhost:8000
+    networks:
+      - finance-network
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+networks:
+  finance-network:
+    driver: bridge
+
+volumes:
+  data:
