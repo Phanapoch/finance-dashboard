@@ -68,3 +68,6 @@
 
 ## Post-Deployment Tasks
 - [x] Update deployment and run docker compose build
+- [x] Fix frontend build permission issue (dist directory owned by root)
+- [x] Rebuild frontend Docker image without cache
+- [x] Verify frontend deployment and functionality
