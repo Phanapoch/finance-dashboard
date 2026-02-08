@@ -96,7 +96,7 @@ async def get_transactions_api(
 
 
 @app.get("/api/transactions/{transaction_id}")
-async def get_transaction_api(transaction_id: int) -> Dict[str, Any]:
+async def get_transaction_api(transaction_id: str) -> Dict[str, Any]:
     """
     Get a single transaction by ID.
     """
@@ -113,7 +113,7 @@ async def get_transaction_api(transaction_id: int) -> Dict[str, Any]:
 
 @app.put("/api/transactions/{transaction_id}")
 async def update_transaction_api(
-    transaction_id: int,
+    transaction_id: str,
     description: Optional[str] = Query(None, description="Transaction description"),
     category: Optional[str] = Query(None, description="Category name"),
     amount: Optional[float] = Query(None, description="Transaction amount"),
@@ -191,7 +191,7 @@ async def create_transaction_api(
 
 
 @app.delete("/api/transactions/{transaction_id}")
-async def delete_transaction_api(transaction_id: int) -> Dict[str, Any]:
+async def delete_transaction_api(transaction_id: str) -> Dict[str, Any]:
     """
     Delete a transaction and all its associated items.
 
@@ -212,7 +212,7 @@ async def delete_transaction_api(transaction_id: int) -> Dict[str, Any]:
 
 @app.post("/api/transactions/{transaction_id}/items")
 async def add_item_api(
-    transaction_id: int,
+    transaction_id: str,
     name: str = Query(..., description="Item name"),
     quantity: int = Query(1, description="Item quantity"),
     unit_price: float = Query(0, description="Item unit price")
@@ -241,7 +241,7 @@ async def add_item_api(
 
 @app.put("/api/transactions/{transaction_id}/items/{item_id}")
 async def update_item_api(
-    transaction_id: int,
+    transaction_id: str,
     item_id: int,
     name: Optional[str] = Query(None, description="Item name"),
     quantity: Optional[int] = Query(None, description="Item quantity"),
@@ -271,7 +271,7 @@ async def update_item_api(
 
 @app.delete("/api/transactions/{transaction_id}/items/{item_id}")
 async def delete_item_api(
-    transaction_id: int,
+    transaction_id: str,
     item_id: int
 ) -> Dict[str, Any]:
     """
