@@ -13,11 +13,14 @@ export function EditModal({ transaction, onClose, onSave }) {
 
   useEffect(() => {
     if (transaction) {
+      // Split date and time if it's a full timestamp
+      const datePart = transaction.date ? transaction.date.split(' ')[0] : new Date().toISOString().split('T')[0]
+      
       setFormData({
         description: transaction.description || '',
         category: transaction.category || '',
         amount: transaction.amount || '',
-        date: transaction.date || new Date().toISOString().split('T')[0],
+        date: datePart,
         platform: transaction.platform || '',
         items: Array.isArray(transaction.items) ? transaction.items.map(item => {
           // Parse item string like "Name (x3)" or just "Name"
