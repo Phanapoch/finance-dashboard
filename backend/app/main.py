@@ -114,37 +114,20 @@ async def get_transaction_api(transaction_id: str) -> Dict[str, Any]:
 @app.put("/api/transactions/{transaction_id}")
 async def update_transaction_api(
     transaction_id: str,
-    description: Optional[str] = Query(None, description="Transaction description"),
-    category: Optional[str] = Query(None, description="Category name"),
-    amount: Optional[float] = Query(None, description="Transaction amount"),
-    date: Optional[str] = Query(None, description="Transaction date (YYYY-MM-DD)"),
-    platform: Optional[str] = Query(None, description="Platform name")
+    transaction_data: Dict[str, Any]
 ) -> Dict[str, Any]:
     """
     Update transaction details.
 
     - **transaction_id**: ID of the transaction to update
-    - **description**: New description (optional)
-    - **category**: New category name (optional)
-    - **amount**: New amount (optional)
-    - **date**: New date (optional, YYYY-MM-DD format)
-    - **platform**: New platform name (optional)
+    - **transaction_data**: Dict containing fields to update (description, category, amount, date, platform)
     """
     transaction = get_transaction_by_id(transaction_id)
 
     if not transaction:
         raise HTTPException(status_code=404, detail="Transaction not found")
 
-    if description:
-        update_transaction(transaction_id, description=description)
-    if category:
-        update_transaction(transaction_id, category=category)
-    if amount is not None:
-        update_transaction(transaction_id, amount=amount)
-    if date:
-        update_transaction(transaction_id, date=date)
-    if platform:
-        update_transaction(transaction_id, platform=platform)
+    update_transaction(transaction_id, **transaction_data)
 
     updated = get_transaction_by_id(transaction_id)
     return {
