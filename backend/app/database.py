@@ -237,3 +237,113 @@ def get_balance(filters: Optional[Dict[str, Any]] = None) -> Dict[str, float]:
             'expenses': expenses,
             'balance': -expenses
         }
+
+
+def update_transaction(transaction_id: int, **kwargs) -> int:
+    """Update transaction details and return the updated transaction ID."""
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        updates = []
+        params = []
+
+        if 'description' in kwargs:
+            updates.append("description = ?")
+            params.append(kwargs['description'])
+        if 'category' in kwargs:
+            updates.append("category = ?")
+            params.append(kwargs['category'])
+        if 'amount' in kwargs:
+            updates.append("amount = ?")
+            params.append(kwargs['amount'])
+        if 'date' in kwargs:
+            updates.append("date = ?")
+            params.append(kwargs['date'])
+        if 'platform' in kwargs:
+            updates.append("platform = ?")
+            params.append(kwargs['platform'])
+
+        if not updates:
+            return transaction_id
+
+        params.append(transaction_id)
+        query = f"UPDATE transactions SET {', '.join(updates)} WHERE id = ?"
+        cursor.execute(query, params)
+        return transaction_id
+
+
+def create_transaction(description: str, amount: float, category: str, date: str,
+                       platform: Optional[str] = None, transaction_type: str = 'expense') -> int:
+    """Create a new transaction and return the transaction ID."""
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute('''
+            INSERT INTO transactions (description, amount, category, date, platform, transaction_type)
+            VALUES (?, ?, ?, ?, ?, ?)
+        ''', (description, amount, category, date, platform, transaction_type))
+        return cursor.lastrowid
+
+
+def delete_transaction(transaction_id: int) -> None:
+    """Delete a transaction and all its associated items."""
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        # First delete all items associated with this transaction
+        cursor.execute("DELETE FROM items WHERE transaction_id = ?", (transaction_id,))
+        # Then delete the transaction
+        cursor.execute("DELETE FROM transactions WHERE id = ?", (transaction_id,))
+
+
+def add_item(transaction_id: int, name: str, quantity: int, unit_price: float) -> int:
+    """Add an item to a transaction and return the item ID."""
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute('''
+            INSERT INTO items (transaction_id, name, quantity, unit_price)
+            VALUES (?, ?, ?, ?)
+        ''', (transaction_id, name, quantity, unit_price))
+        return cursor.lastrowid
+
+
+def update_item(item_id: int, **kwargs) -> Dict:
+    """Update an item in the database and return the updated item data."""
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        updates = []
+        params = []
+
+        if 'name' in kwargs:
+            updates.append("name = ?")
+            params.append(kwargs['name'])
+        if 'quantity' in kwargs:
+            updates.append("quantity = ?")
+            params.append(kwargs['quantity'])
+        if 'unit_price' in kwargs:
+            updates.append("unit_price = ?")
+            params.append(kwargs['unit_price'])
+
+        if not updates:
+            return get_item_by_id(item_id)
+
+        params.append(item_id)
+        query = f"UPDATE items SET {', '.join(updates)} WHERE id = ?"
+        cursor.execute(query, params)
+
+        return get_item_by_id(item_id)
+
+
+def delete_item(item_id: int) -> None:
+    """Delete an item from the database."""
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM items WHERE id = ?", (item_id,))
+
+
+def get_item_by_id(item_id: int) -> Dict:
+    """Get an item by ID."""
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute('SELECT * FROM items WHERE id = ?', (item_id,))
+        row = cursor.fetchone()
+        if not row:
+            return None
+        return dict(row)

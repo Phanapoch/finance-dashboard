@@ -4,7 +4,8 @@ import { SummaryCards } from './components/SummaryCards'
 import { CategoryBreakdown } from './components/CategoryBreakdown'
 import { SpendingTrend } from './components/SpendingTrend'
 import { TransactionsTable } from './components/TransactionsTable'
-import { Calendar, Filter, CalendarRange } from 'lucide-react'
+import { AddTransactionModal } from './components/AddTransactionModal'
+import { Calendar, Filter, CalendarRange, Plus } from 'lucide-react'
 
 function App() {
   const [period, setPeriod] = useState('all') // 1d, 7d, 1m, all
@@ -17,6 +18,8 @@ function App() {
   const [allCategories, setAllCategories] = useState([])
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear())
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth() + 1)
+  const [showAddModal, setShowAddModal] = useState(false)
+  const [refreshTrigger, setRefreshTrigger] = useState(0)
 
   useEffect(() => {
     const now = new Date()
@@ -51,6 +54,11 @@ function App() {
       })
       .catch(err => console.error('Error fetching categories:', err))
   }, [])
+
+  const handleAddSuccess = () => {
+    // Refresh the transactions list by triggering a re-render
+    setRefreshTrigger(prev => prev + 1)
+  }
 
   const getPlatformFilterLabel = () => {
     if (platformFilter === 'all') return 'All Platforms'
@@ -245,6 +253,15 @@ function App() {
           </button>
         </div>
 
+        {/* Add Transaction Button */}
+        <button
+          onClick={() => setShowAddModal(true)}
+          className="flex items-center gap-2 px-6 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-all duration-300 hover-lift shadow-md hover:shadow-lg"
+        >
+          <Plus className="w-5 h-5" />
+          Add Transaction
+        </button>
+
         {/* Active Filters Display */}
         {(platformFilter !== 'all' || showDateRange || categoryFilter.length > 0) && (
           <div className="flex flex-wrap items-center gap-4 bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg border border-blue-200 dark:border-blue-800">
@@ -284,16 +301,29 @@ function App() {
 
         <SummaryCards filters={dateRange} platformFilter={platformFilter} categoryFilter={categoryFilter} />
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-          <CategoryBreakdown filters={dateRange} />
+          <CategoryBreakdown filters={dateRange} categoryFilter={categoryFilter} />
           <SpendingTrend filters={dateRange} />
         </div>
         <div className="space-y-4">
           <h2 className="text-xl font-bold text-gray-900 dark:text-white px-1 transition-colors duration-300">
             Raw Transactions
           </h2>
-          <TransactionsTable filters={dateRange} platformFilter={platformFilter} categoryFilter={categoryFilter} />
+          <TransactionsTable
+            key={refreshTrigger}
+            filters={dateRange}
+            platformFilter={platformFilter}
+            categoryFilter={categoryFilter}
+          />
         </div>
       </div>
+
+      {/* Add Transaction Modal */}
+      {showAddModal && (
+        <AddTransactionModal
+          onClose={() => setShowAddModal(false)}
+          onSuccess={handleAddSuccess}
+        />
+      )}
     </DashboardLayout>
   )
 }

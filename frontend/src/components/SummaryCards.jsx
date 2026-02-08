@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Wallet, TrendingUp, Activity, Loader2 } from 'lucide-react'
 
-export function SummaryCards({ filters }) {
+export function SummaryCards({ filters, categoryFilter }) {
   const [data, setData] = useState({ b: 0, i: 0, e: 0, c: 0 });
   const [loading, setLoading] = useState(true);
 
@@ -11,6 +11,10 @@ export function SummaryCards({ filters }) {
         const params = new URLSearchParams();
         if (filters?.from) params.append('date_from', filters.from);
         if (filters?.to) params.append('date_to', filters.to);
+        // Add category filter if multiple categories are selected
+        if (categoryFilter && categoryFilter.length > 0) {
+          categoryFilter.forEach(cat => params.append('category', cat));
+        }
 
         const response = await fetch(`/api/dashboard?${params.toString()}`);
         const json = await response.json();
@@ -35,7 +39,7 @@ export function SummaryCards({ filters }) {
       }
     };
     fetchData();
-  }, [filters]);
+  }, [filters, categoryFilter]);
 
   const f = (v) => "฿ " + Math.abs(v).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 

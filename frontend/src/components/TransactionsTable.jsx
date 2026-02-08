@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
-import { MoreHorizontal, Search, ChevronDown, ChevronUp, Loader2, Download } from 'lucide-react'
+import { MoreHorizontal, Search, ChevronDown, ChevronUp, Loader2, Download, Edit, Trash2 } from 'lucide-react'
+import { EditModal } from './EditModal'
 
 export function TransactionsTable({ filters, platformFilter, categoryFilter }) {
   const [transactions, setTransactions] = useState([])
@@ -8,6 +9,7 @@ export function TransactionsTable({ filters, platformFilter, categoryFilter }) {
   const [expandedRows, setExpandedRows] = useState(new Set())
   const [sortBy, setSortBy] = useState('date')
   const [sortOrder, setSortOrder] = useState('desc')
+  const [editingTransaction, setEditingTransaction] = useState(null)
 
   const getPlatformColor = (platform) => {
     const platformColors = {
@@ -56,6 +58,72 @@ export function TransactionsTable({ filters, platformFilter, categoryFilter }) {
       newExpanded.add(id)
     }
     setExpandedRows(newExpanded)
+  }
+
+  const handleEdit = (transaction) => {
+    setEditingTransaction(transaction)
+  }
+
+  const handleSave = async (updatedTransaction) => {
+    try {
+      const response = await fetch(`/api/transactions/${updatedTransaction.transaction_id || updatedTransaction.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          description: updatedTransaction.description,
+          category: updatedTransaction.category,
+          amount: updatedTransaction.amount,
+          date: updatedTransaction.date,
+          platform: updatedTransaction.platform
+        })
+      })
+
+      if (response.ok) {
+        // Refresh the transactions list
+        const params = new URLSearchParams();
+        if (filters?.from) params.append('date_from', filters.from);
+        if (filters?.to) params.append('date_to', filters.to);
+        if (platformFilter && platformFilter !== 'all') params.append('platform', platformFilter);
+        if (categoryFilter && categoryFilter.length > 0) {
+          categoryFilter.forEach(cat => params.append('category', cat));
+        }
+
+        const data = await fetch(`/api/transactions?${params.toString()}`).then(r => r.json());
+        setTransactions(data.data || [])
+
+        // If items were updated, refresh again to show updated items
+        if (updatedTransaction.items && updatedTransaction.items.length > 0) {
+          const refreshData = await fetch(`/api/transactions?${params.toString()}`).then(r => r.json());
+          setTransactions(refreshData.data || []);
+        }
+      }
+    } catch (error) {
+      console.error('Error updating transaction:', error)
+    }
+  }
+
+  const handleDelete = async (transactionId) => {
+    if (window.confirm('Are you sure you want to delete this transaction? This action cannot be undone.')) {
+      try {
+        await fetch(`/api/transactions/${transactionId}`, {
+          method: 'DELETE'
+        })
+
+        // Refresh the transactions list
+        const params = new URLSearchParams();
+        if (filters?.from) params.append('date_from', filters.from);
+        if (filters?.to) params.append('date_to', filters.to);
+        if (platformFilter && platformFilter !== 'all') params.append('platform', platformFilter);
+        if (categoryFilter && categoryFilter.length > 0) {
+          categoryFilter.forEach(cat => params.append('category', cat));
+        }
+
+        const data = await fetch(`/api/transactions?${params.toString()}`).then(r => r.json());
+        setTransactions(data.data || [])
+      } catch (error) {
+        console.error('Error deleting transaction:', error)
+      }
+    }
   }
 
   const sortTransactions = (transactions) => {
@@ -231,6 +299,24 @@ export function TransactionsTable({ filters, platformFilter, categoryFilter }) {
                     <td className={`py-3 px-4 text-sm text-right font-bold ${t.transaction_type === 'income' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
                       {t.transaction_type === 'income' ? '+' : '-'}{formatCurrency(t.amount)}
                     </td>
+                    <td className="py-3 px-4">
+                      <div className="flex items-center justify-end gap-2">
+                        <button
+                          onClick={(e) => { e.stopPropagation(); handleEdit(t); }}
+                          className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors"
+                          title="Edit transaction"
+                        >
+                          <Edit className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); handleDelete(t.id); }}
+                          className="p-2 rounded-lg bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors"
+                          title="Delete transaction"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </td>
                   </tr>
                   {expandedRows.has(t.id) && t.items && (
                     <tr className="bg-gray-50/50 dark:bg-gray-900/20">
@@ -254,6 +340,15 @@ export function TransactionsTable({ filters, platformFilter, categoryFilter }) {
       <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700 text-xs text-gray-400 dark:text-gray-500 italic animate-fadeIn">
         Total {filteredTransactions.length} records found
       </div>
+
+      {/* Edit Modal */}
+      {editingTransaction && (
+        <EditModal
+          transaction={editingTransaction}
+          onClose={() => setEditingTransaction(null)}
+          onSave={handleSave}
+        />
+      )}
     </div>
   )
 }

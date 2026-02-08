@@ -13,7 +13,14 @@ from .database import (
     get_category_colors,
     get_all_categories,
     get_balance,
-    init_db
+    init_db,
+    update_transaction,
+    create_transaction,
+    delete_transaction,
+    add_item,
+    update_item,
+    delete_item,
+    get_item_by_id
 )
 
 app = FastAPI(title="Finance Dashboard API", version="1.0.0")
@@ -101,6 +108,187 @@ async def get_transaction_api(transaction_id: int) -> Dict[str, Any]:
     return {
         "success": True,
         "data": transaction
+    }
+
+
+@app.put("/api/transactions/{transaction_id}")
+async def update_transaction_api(
+    transaction_id: int,
+    description: Optional[str] = Query(None, description="Transaction description"),
+    category: Optional[str] = Query(None, description="Category name"),
+    amount: Optional[float] = Query(None, description="Transaction amount"),
+    date: Optional[str] = Query(None, description="Transaction date (YYYY-MM-DD)"),
+    platform: Optional[str] = Query(None, description="Platform name")
+) -> Dict[str, Any]:
+    """
+    Update transaction details.
+
+    - **transaction_id**: ID of the transaction to update
+    - **description**: New description (optional)
+    - **category**: New category name (optional)
+    - **amount**: New amount (optional)
+    - **date**: New date (optional, YYYY-MM-DD format)
+    - **platform**: New platform name (optional)
+    """
+    transaction = get_transaction_by_id(transaction_id)
+
+    if not transaction:
+        raise HTTPException(status_code=404, detail="Transaction not found")
+
+    if description:
+        update_transaction(transaction_id, description=description)
+    if category:
+        update_transaction(transaction_id, category=category)
+    if amount is not None:
+        update_transaction(transaction_id, amount=amount)
+    if date:
+        update_transaction(transaction_id, date=date)
+    if platform:
+        update_transaction(transaction_id, platform=platform)
+
+    updated = get_transaction_by_id(transaction_id)
+    return {
+        "success": True,
+        "data": updated,
+        "message": "Transaction updated successfully"
+    }
+
+
+@app.post("/api/transactions")
+async def create_transaction_api(
+    description: str = Query(..., description="Transaction description"),
+    amount: float = Query(..., description="Transaction amount"),
+    category: str = Query(..., description="Category name"),
+    date: str = Query(..., description="Transaction date (YYYY-MM-DD)"),
+    platform: Optional[str] = Query(None, description="Platform name (optional)"),
+    transaction_type: str = Query("expense", description="Transaction type (expense/income)")
+) -> Dict[str, Any]:
+    """
+    Create a new transaction manually.
+
+    - **description**: Transaction description
+    - **amount**: Transaction amount
+    - **category**: Category name
+    - **date**: Transaction date (YYYY-MM-DD format)
+    - **platform**: Platform name (optional)
+    - **transaction_type**: Transaction type (expense/income)
+    """
+    new_id = create_transaction(
+        description=description,
+        amount=amount,
+        category=category,
+        date=date,
+        platform=platform,
+        transaction_type=transaction_type
+    )
+
+    new_transaction = get_transaction_by_id(new_id)
+    return {
+        "success": True,
+        "data": new_transaction,
+        "message": "Transaction created successfully"
+    }
+
+
+@app.delete("/api/transactions/{transaction_id}")
+async def delete_transaction_api(transaction_id: int) -> Dict[str, Any]:
+    """
+    Delete a transaction and all its associated items.
+
+    - **transaction_id**: ID of the transaction to delete
+    """
+    transaction = get_transaction_by_id(transaction_id)
+
+    if not transaction:
+        raise HTTPException(status_code=404, detail="Transaction not found")
+
+    delete_transaction(transaction_id)
+
+    return {
+        "success": True,
+        "message": "Transaction deleted successfully"
+    }
+
+
+@app.post("/api/transactions/{transaction_id}/items")
+async def add_item_api(
+    transaction_id: int,
+    name: str = Query(..., description="Item name"),
+    quantity: int = Query(1, description="Item quantity"),
+    unit_price: float = Query(0, description="Item unit price")
+) -> Dict[str, Any]:
+    """
+    Add an item to a transaction.
+
+    - **transaction_id**: ID of the transaction
+    - **name**: Item name
+    - **quantity**: Item quantity (default: 1)
+    - **unit_price**: Item unit price (default: 0)
+    """
+    item_id = add_item(
+        transaction_id=transaction_id,
+        name=name,
+        quantity=quantity,
+        unit_price=unit_price
+    )
+
+    return {
+        "success": True,
+        "data": {"id": item_id},
+        "message": "Item added successfully"
+    }
+
+
+@app.put("/api/transactions/{transaction_id}/items/{item_id}")
+async def update_item_api(
+    transaction_id: int,
+    item_id: int,
+    name: Optional[str] = Query(None, description="Item name"),
+    quantity: Optional[int] = Query(None, description="Item quantity"),
+    unit_price: Optional[float] = Query(None, description="Item unit price")
+) -> Dict[str, Any]:
+    """
+    Update an item in a transaction.
+
+    - **transaction_id**: ID of the transaction
+    - **item_id**: ID of the item to update
+    - **name**: New item name (optional)
+    - **quantity**: New item quantity (optional)
+    - **unit_price**: New item unit price (optional)
+    """
+    transaction = get_transaction_by_id(transaction_id)
+
+    if not transaction:
+        raise HTTPException(status_code=404, detail="Transaction not found")
+
+    updated = update_item(item_id, name=name, quantity=quantity, unit_price=unit_price)
+    return {
+        "success": True,
+        "data": updated,
+        "message": "Item updated successfully"
+    }
+
+
+@app.delete("/api/transactions/{transaction_id}/items/{item_id}")
+async def delete_item_api(
+    transaction_id: int,
+    item_id: int
+) -> Dict[str, Any]:
+    """
+    Delete an item from a transaction.
+
+    - **transaction_id**: ID of the transaction
+    - **item_id**: ID of the item to delete
+    """
+    transaction = get_transaction_by_id(transaction_id)
+
+    if not transaction:
+        raise HTTPException(status_code=404, detail="Transaction not found")
+
+    delete_item(item_id)
+    return {
+        "success": True,
+        "message": "Item deleted successfully"
     }
 
 
