@@ -139,32 +139,14 @@ async def update_transaction_api(
 
 @app.post("/api/transactions")
 async def create_transaction_api(
-    description: str = Query(..., description="Transaction description"),
-    amount: float = Query(..., description="Transaction amount"),
-    category: str = Query(..., description="Category name"),
-    date: str = Query(..., description="Transaction date (YYYY-MM-DD)"),
-    platform: Optional[str] = Query(None, description="Platform name (optional)"),
-    transaction_type: str = Query("expense", description="Transaction type (expense/income)")
+    transaction_data: Dict[str, Any]
 ) -> Dict[str, Any]:
     """
     Create a new transaction manually.
 
-    - **description**: Transaction description
-    - **amount**: Transaction amount
-    - **category**: Category name
-    - **date**: Transaction date (YYYY-MM-DD format)
-    - **platform**: Platform name (optional)
-    - **transaction_type**: Transaction type (expense/income)
+    - **transaction_data**: Dict containing fields (description, amount, category, date, platform, transaction_type)
     """
-    new_id = create_transaction(
-        description=description,
-        amount=amount,
-        category=category,
-        date=date,
-        platform=platform,
-        transaction_type=transaction_type
-    )
-
+    new_id = create_transaction(**transaction_data)
     new_transaction = get_transaction_by_id(new_id)
     return {
         "success": True,
