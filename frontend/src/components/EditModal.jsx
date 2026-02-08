@@ -7,6 +7,7 @@ export function EditModal({ transaction, onClose, onSave }) {
     category: '',
     amount: '',
     date: '',
+    time: '',
     platform: '',
     items: []
   })
@@ -14,13 +15,16 @@ export function EditModal({ transaction, onClose, onSave }) {
   useEffect(() => {
     if (transaction) {
       // Split date and time if it's a full timestamp
-      const datePart = transaction.date ? transaction.date.split(' ')[0] : new Date().toISOString().split('T')[0]
+      const dateParts = transaction.date ? transaction.date.split(' ') : []
+      const datePart = dateParts[0] || new Date().toISOString().split('T')[0]
+      const timePart = dateParts[1] || '00:00'
       
       setFormData({
         description: transaction.description || '',
         category: transaction.category || '',
         amount: transaction.amount || '',
         date: datePart,
+        time: timePart,
         platform: transaction.platform || '',
         items: Array.isArray(transaction.items) ? transaction.items.map(item => {
           // Parse item string like "Name (x3)" or just "Name"
@@ -83,12 +87,14 @@ export function EditModal({ transaction, onClose, onSave }) {
 
     try {
       // Update transaction
+      const fullDateTime = formData.time ? `${formData.date} ${formData.time}` : formData.date
+      
       await onSave({
         ...transaction,
         description: formData.description,
         category: formData.category,
         amount: parseFloat(formData.amount),
-        date: formData.date,
+        date: fullDateTime,
         platform: formData.platform
       })
 
@@ -195,6 +201,18 @@ export function EditModal({ transaction, onClose, onSave }) {
                 onChange={(e) => handleChange('date', e.target.value)}
                 className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                 required
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Time
+              </label>
+              <input
+                type="time"
+                value={formData.time}
+                onChange={(e) => handleChange('time', e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
               />
             </div>
           </div>
