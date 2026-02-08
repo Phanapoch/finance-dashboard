@@ -84,6 +84,7 @@ export function EditModal({ transaction, onClose, onSave }) {
     try {
       // Update transaction
       await onSave({
+        ...transaction,
         description: formData.description,
         category: formData.category,
         amount: parseFloat(formData.amount),
