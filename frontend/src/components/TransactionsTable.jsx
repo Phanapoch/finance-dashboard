@@ -325,12 +325,20 @@ export function TransactionsTable({ filters, platformFilter, categoryFilter }) {
                   </tr>
                   {expandedRows.has(t.id) && t.items && (
                     <tr className="bg-gray-50/50 dark:bg-gray-900/20">
-                      <td colSpan="5" className="py-2 px-8">
-                        <ul className="list-disc list-inside space-y-1">
+                      <td colSpan="6" className="py-3 px-8">
+                        <div className="grid grid-cols-1 gap-2">
                           {t.items.map((item, idx) => (
-                            <li key={idx} className="text-xs text-gray-600 dark:text-gray-400">{item}</li>
+                            <div key={idx} className="flex justify-between items-center text-xs text-gray-600 dark:text-gray-400 border-b border-gray-100 dark:border-gray-800 pb-1 last:border-0">
+                              <span className="flex-1">{item.formatted || item.name || item}</span>
+                              {item.unit_price > 0 && (
+                                <span className="font-mono text-gray-500">
+                                  {item.quantity > 1 ? `${formatCurrency(item.unit_price)} x ${item.quantity} = ` : ''}
+                                  <span className="font-bold text-gray-700 dark:text-gray-300">{formatCurrency(item.unit_price * item.quantity)}</span>
+                                </span>
+                              )}
+                            </div>
                           ))}
-                        </ul>
+                        </div>
                       </td>
                     </tr>
                   )}

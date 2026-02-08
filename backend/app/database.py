@@ -120,14 +120,22 @@ def get_transactions(filters: Optional[Dict[str, Any]] = None) -> List[Dict]:
             db_items = cursor.fetchall()
             
             if db_items:
-                items = [f"{item['name']} (x{int(item['quantity'])})" if item['quantity'] > 1 else item['name'] for item in db_items]
+                items = [
+                    {
+                        "name": item['name'],
+                        "quantity": item['quantity'],
+                        "unit_price": item['unit_price'],
+                        "formatted": f"{item['name']} (x{int(item['quantity'])})" if item['quantity'] > 1 else item['name']
+                    }
+                    for item in db_items
+                ]
                 d['items'] = items
                 d['item_count'] = len(items)
             else:
-                # Fallback to description parsing if no items in table
-                items = _parse_items(d['description'])
-                d['items'] = items
-                d['item_count'] = len(items)
+                # Fallback to description parsing
+                parsed_names = _parse_items(d['description'])
+                d['items'] = [{"name": name, "quantity": 1, "unit_price": 0, "formatted": name} for name in parsed_names]
+                d['item_count'] = len(parsed_names)
                 
             result.append(d)
         return result
@@ -147,13 +155,21 @@ def get_transaction_by_id(transaction_id: str) -> Optional[Dict]:
         db_items = cursor.fetchall()
         
         if db_items:
-            items = [f"{item['name']} (x{int(item['quantity'])})" if item['quantity'] > 1 else item['name'] for item in db_items]
+            items = [
+                {
+                    "name": item['name'],
+                    "quantity": item['quantity'],
+                    "unit_price": item['unit_price'],
+                    "formatted": f"{item['name']} (x{int(item['quantity'])})" if item['quantity'] > 1 else item['name']
+                }
+                for item in db_items
+            ]
             d['items'] = items
             d['item_count'] = len(items)
         else:
-            items = _parse_items(d['description'])
-            d['items'] = items
-            d['item_count'] = len(items)
+            parsed_names = _parse_items(d['description'])
+            d['items'] = [{"name": name, "quantity": 1, "unit_price": 0, "formatted": name} for name in parsed_names]
+            d['item_count'] = len(parsed_names)
             
         return d
 
