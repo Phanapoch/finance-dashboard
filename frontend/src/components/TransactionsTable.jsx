@@ -60,6 +60,10 @@ export function TransactionsTable({ filters, platformFilter, categoryFilter }) {
     setExpandedRows(newExpanded)
   }
 
+  const handleEdit = (transaction) => {
+    setEditingTransaction(transaction)
+  }
+
   const handleSave = async (updatedTransaction) => {
     try {
       console.log('Saving transaction:', updatedTransaction);
