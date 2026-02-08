@@ -239,7 +239,7 @@ def get_balance(filters: Optional[Dict[str, Any]] = None) -> Dict[str, float]:
         }
 
 
-def update_transaction(transaction_id: int, **kwargs) -> int:
+def update_transaction(transaction_id: str, **kwargs) -> int:
     """Update transaction details and return the updated transaction ID."""
     with get_db_connection() as conn:
         cursor = conn.cursor()
@@ -283,7 +283,7 @@ def create_transaction(description: str, amount: float, category: str, date: str
         return cursor.lastrowid
 
 
-def delete_transaction(transaction_id: int) -> None:
+def delete_transaction(transaction_id: str) -> None:
     """Delete a transaction and all its associated items."""
     with get_db_connection() as conn:
         cursor = conn.cursor()
@@ -293,7 +293,7 @@ def delete_transaction(transaction_id: int) -> None:
         cursor.execute("DELETE FROM transactions WHERE id = ?", (transaction_id,))
 
 
-def add_item(transaction_id: int, name: str, quantity: int, unit_price: float) -> int:
+def add_item(transaction_id: str, name: str, quantity: int, unit_price: float) -> int:
     """Add an item to a transaction and return the item ID."""
     with get_db_connection() as conn:
         cursor = conn.cursor()

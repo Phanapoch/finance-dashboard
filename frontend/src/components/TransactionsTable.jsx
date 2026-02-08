@@ -60,13 +60,12 @@ export function TransactionsTable({ filters, platformFilter, categoryFilter }) {
     setExpandedRows(newExpanded)
   }
 
-  const handleEdit = (transaction) => {
-    setEditingTransaction(transaction)
-  }
-
   const handleSave = async (updatedTransaction) => {
     try {
-      const response = await fetch(`/api/transactions/${updatedTransaction.transaction_id || updatedTransaction.id}`, {
+      console.log('Saving transaction:', updatedTransaction);
+      const transactionId = updatedTransaction.transaction_id || updatedTransaction.id;
+      
+      const response = await fetch(`/api/transactions/${transactionId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -79,23 +78,25 @@ export function TransactionsTable({ filters, platformFilter, categoryFilter }) {
       })
 
       if (response.ok) {
-        // Refresh the transactions list
+        console.log('Transaction updated successfully');
+        // Close modal first
+        setEditingTransaction(null);
+        
+        // Refresh data
         const params = new URLSearchParams();
         if (filters?.from) params.append('date_from', filters.from);
         if (filters?.to) params.append('date_to', filters.to);
         if (platformFilter && platformFilter !== 'all') params.append('platform', platformFilter);
-        if (categoryFilter && categoryFilter.length > 0) {
-          categoryFilter.forEach(cat => params.append('category', cat));
-        }
-
+        
         const data = await fetch(`/api/transactions?${params.toString()}`).then(r => r.json());
-        setTransactions(data.data || [])
-
-        // If items were updated, refresh again to show updated items
-        if (updatedTransaction.items && updatedTransaction.items.length > 0) {
-          const refreshData = await fetch(`/api/transactions?${params.toString()}`).then(r => r.json());
-          setTransactions(refreshData.data || []);
-        }
+        setTransactions(data.data || []);
+        
+        // Broadcast refresh to other components if needed (App level refresh)
+        window.location.reload(); 
+      } else {
+        const errorData = await response.json();
+        console.error('Failed to update transaction:', errorData);
+        alert('Update failed: ' + (errorData.detail || 'Unknown error'));
       }
     } catch (error) {
       console.error('Error updating transaction:', error)
