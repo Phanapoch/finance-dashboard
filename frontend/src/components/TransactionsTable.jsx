@@ -329,7 +329,7 @@ export function TransactionsTable({ filters, platformFilter, categoryFilter }) {
                         <div className="grid grid-cols-1 gap-2">
                           {t.items.map((item, idx) => (
                             <div key={idx} className="flex justify-between items-center text-xs text-gray-600 dark:text-gray-400 border-b border-gray-100 dark:border-gray-800 pb-1 last:border-0">
-                              <span className="flex-1">{item.formatted || item.name || item}</span>
+                              <span className="flex-1">{item.formatted || item.name || (typeof item === 'object' ? JSON.stringify(item) : String(item))}</span>
                               {item.unit_price > 0 && (
                                 <span className="font-mono text-gray-500">
                                   {item.quantity > 1 ? `${formatCurrency(item.unit_price)} x ${item.quantity} = ` : ''}
