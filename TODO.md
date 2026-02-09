@@ -74,5 +74,4 @@
 
 ## Future Improvements
 - [x] **Multi-User Support:** Implement account isolation by filtering data by user email (Default: `ice@imice.im`).
-- [ ] **Dynamic Currency Conversion:** Support for multiple currencies with real-time exchange rates.
 - [ ] **AI-Powered Insights:** Personalized spending advice and anomaly detection.

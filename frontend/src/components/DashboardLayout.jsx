@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
-import { Moon, Sun } from 'lucide-react'
+import { Moon, Sun, Sparkles } from 'lucide-react'
 
-export function DashboardLayout({ children }) {
+export function DashboardLayout({ children, onAiClick }) {
   const [isDark, setIsDark] = useState(() => {
     // Load preference from localStorage or check system preference
     const saved = localStorage.getItem('theme')
@@ -36,6 +36,14 @@ export function DashboardLayout({ children }) {
               <span className="hidden sm:block text-sm text-gray-600 dark:text-gray-400 transition-colors duration-300 animate-fadeIn">
                 Welcome back, ice!
               </span>
+              <button
+                onClick={onAiClick}
+                className="p-2 rounded-lg bg-indigo-100 dark:bg-indigo-900/30 border border-indigo-200 dark:border-indigo-800 hover:bg-indigo-200 dark:hover:bg-indigo-800/50 transition-all duration-300 hover-lift btn-hover text-indigo-600 dark:text-indigo-400"
+                aria-label="AI Analysis"
+                title="AI Analysis"
+              >
+                <Sparkles className="w-5 h-5" />
+              </button>
               <button
                 onClick={toggleTheme}
                 className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600 transition-all duration-300 hover-lift btn-hover"

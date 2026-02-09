@@ -22,6 +22,7 @@ from .database import (
     delete_item,
     get_item_by_id
 )
+from .ai_analyzer import analyze_transactions
 
 app = FastAPI(title="Finance Dashboard API", version="1.0.0")
 
@@ -428,6 +429,36 @@ async def get_balance_api() -> Dict[str, Any]:
     return {
         "success": True,
         "data": balance
+    }
+
+
+@app.post("/api/ai/analyze")
+async def analyze_finance_api(
+    date_from: Optional[str] = Query(None, description="Filter by date from (YYYY-MM-DD)"),
+    date_to: Optional[str] = Query(None, description="Filter by date to (YYYY-MM-DD)"),
+    email: Optional[str] = Query("ice@imice.im", description="Filter by user email"),
+    model: Optional[str] = Query(None, description="Ollama model to use"),
+    prompt: Optional[str] = Query(None, description="Custom prompt for analysis")
+) -> Dict[str, Any]:
+    """
+    Analyze transactions using AI.
+    """
+    filters = {}
+    if date_from:
+        filters['date_from'] = date_from
+    if date_to:
+        filters['date_to'] = date_to
+    if email:
+        filters['email'] = email
+
+    transactions = get_transactions(filters)
+    
+    # We only send the last 50 transactions to avoid token limit and reduce processing time
+    analysis = analyze_transactions(transactions[:50], user_prompt=prompt, model_override=model)
+    
+    return {
+        "success": True,
+        "data": analysis
     }
 
 

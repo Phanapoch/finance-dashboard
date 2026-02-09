@@ -5,6 +5,7 @@ import { CategoryBreakdown } from './components/CategoryBreakdown'
 import { SpendingTrend } from './components/SpendingTrend'
 import { TransactionsTable } from './components/TransactionsTable'
 import { AddTransactionModal } from './components/AddTransactionModal'
+import { AIInsightsModal } from './components/AIInsightsModal'
 import { Calendar, Filter, CalendarRange, Plus } from 'lucide-react'
 
 function App() {
@@ -15,6 +16,7 @@ function App() {
   const [showDateRange, setShowDateRange] = useState(false)
   const [showPlatformFilter, setShowPlatformFilter] = useState(false)
   const [showCategoryFilter, setShowCategoryFilter] = useState(false)
+  const [showAiModal, setShowAiModal] = useState(false)
   const [allCategories, setAllCategories] = useState([])
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear())
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth() + 1)
@@ -70,7 +72,7 @@ function App() {
   const allPlatforms = ['K PLUS', 'LINE Pay', 'Shopee', '7-Eleven', 'Grab', 'GrabFood', 'K-Bank', 'KBANK', 'Manual']
 
   return (
-    <DashboardLayout>
+    <DashboardLayout onAiClick={() => setShowAiModal(true)}>
       <div className="space-y-6">
         {/* Main Filter Bar */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm transition-colors duration-300">
@@ -338,6 +340,14 @@ function App() {
         <AddTransactionModal
           onClose={() => setShowAddModal(false)}
           onSuccess={handleAddSuccess}
+        />
+      )}
+      {/* AI Insights Modal */}
+      {showAiModal && (
+        <AIInsightsModal
+          onClose={() => setShowAiModal(false)}
+          filters={dateRange}
+          userEmail={userEmail}
         />
       )}
     </DashboardLayout>
