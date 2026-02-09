@@ -18,6 +18,8 @@ function App() {
   const [allCategories, setAllCategories] = useState([])
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear())
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth() + 1)
+  const [userEmail, setUserEmail] = useState('ice@imice.im')
+  const [availableEmails, setAvailableEmails] = useState(['ice@imice.im', '8ojo3j@gmail.com'])
   const [showAddModal, setShowAddModal] = useState(false)
   const [refreshTrigger, setRefreshTrigger] = useState(0)
 
@@ -72,6 +74,19 @@ function App() {
       <div className="space-y-6">
         {/* Main Filter Bar */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm transition-colors duration-300">
+          <div className="flex-1">
+            <h2 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">User Account</h2>
+            <select
+              value={userEmail}
+              onChange={(e) => setUserEmail(e.target.value)}
+              className="px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 outline-none transition-colors duration-300"
+            >
+              {availableEmails.map(email => (
+                <option key={email} value={email}>{email}</option>
+              ))}
+            </select>
+          </div>
+
           <div className="flex-1">
             <h2 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Filter Period</h2>
             <div className="flex items-center gap-2">
@@ -299,20 +314,21 @@ function App() {
           </div>
         )}
 
-        <SummaryCards filters={dateRange} platformFilter={platformFilter} categoryFilter={categoryFilter} />
+        <SummaryCards filters={dateRange} platformFilter={platformFilter} categoryFilter={categoryFilter} userEmail={userEmail} />
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-          <CategoryBreakdown filters={dateRange} categoryFilter={categoryFilter} />
-          <SpendingTrend filters={dateRange} />
+          <CategoryBreakdown filters={dateRange} categoryFilter={categoryFilter} userEmail={userEmail} />
+          <SpendingTrend filters={dateRange} userEmail={userEmail} />
         </div>
         <div className="space-y-4">
           <h2 className="text-xl font-bold text-gray-900 dark:text-white px-1 transition-colors duration-300">
             Raw Transactions
           </h2>
           <TransactionsTable
-            key={refreshTrigger}
+            key={`${refreshTrigger}-${userEmail}`}
             filters={dateRange}
             platformFilter={platformFilter}
             categoryFilter={categoryFilter}
+            userEmail={userEmail}
           />
         </div>
       </div>

@@ -89,7 +89,7 @@ def get_transactions(filters: Optional[Dict[str, Any]] = None) -> List[Dict]:
     with get_db_connection() as conn:
         cursor = conn.cursor()
         query = """
-            SELECT id, date, amount, category, description, 'expense' as transaction_type, platform
+            SELECT id, date, amount, category, description, 'expense' as transaction_type, platform, email_user
             FROM transactions WHERE 1=1
         """
         params = []
@@ -107,6 +107,9 @@ def get_transactions(filters: Optional[Dict[str, Any]] = None) -> List[Dict]:
             if filters.get('platform'):
                 query += " AND platform = ?"
                 params.append(filters['platform'])
+            if filters.get('email'):
+                query += " AND email_user = ?"
+                params.append(filters['email'])
 
         query += " ORDER BY date DESC"
         cursor.execute(query, params)
@@ -187,6 +190,9 @@ def get_summary_by_category(filters: Optional[Dict[str, Any]] = None) -> List[Di
             if filters.get('date_to'):
                 query += " AND date <= ?"
                 params.append(filters['date_to'])
+            if filters.get('email'):
+                query += " AND email_user = ?"
+                params.append(filters['email'])
         query += " GROUP BY category ORDER BY total DESC"
         cursor.execute(query, params)
         return [dict(row) for row in cursor.fetchall()]
@@ -211,6 +217,9 @@ def get_summary_by_date(filters: Optional[Dict[str, Any]] = None) -> List[Dict]:
             if filters.get('date_to'):
                 query += " AND date <= ?"
                 params.append(filters['date_to'])
+            if filters.get('email'):
+                query += " AND email_user = ?"
+                params.append(filters['email'])
 
         query += f" GROUP BY strftime('{group_format}', date) ORDER BY date ASC"
         cursor.execute(query, params)
@@ -246,6 +255,9 @@ def get_balance(filters: Optional[Dict[str, Any]] = None) -> Dict[str, float]:
             if filters.get('date_to'):
                 query += " AND date <= ?"
                 params.append(filters['date_to'])
+            if filters.get('email'):
+                query += " AND email_user = ?"
+                params.append(filters['email'])
         cursor.execute(query, params)
         expenses = cursor.fetchone()['total']
         return {

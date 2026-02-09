@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Loader2 } from 'lucide-react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 
-export function SpendingTrend({ filters }) {
+export function SpendingTrend({ filters, userEmail }) {
   const [spendingData, setSpendingData] = useState([])
   const [loading, setLoading] = useState(true)
 
@@ -12,6 +12,7 @@ export function SpendingTrend({ filters }) {
         const params = new URLSearchParams();
         if (filters?.from) params.append('date_from', filters.from);
         if (filters?.to) params.append('date_to', filters.to);
+        if (userEmail) params.append('email', userEmail);
 
         const response = await fetch(`/api/summary/date?${params.toString()}`);
         const data = await response.json();

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { MoreHorizontal, Search, ChevronDown, ChevronUp, Loader2, Download, Edit, Trash2 } from 'lucide-react'
 import { EditModal } from './EditModal'
 
-export function TransactionsTable({ filters, platformFilter, categoryFilter }) {
+export function TransactionsTable({ filters, platformFilter, categoryFilter, userEmail }) {
   const [transactions, setTransactions] = useState([])
   const [filter, setFilter] = useState('')
   const [loading, setLoading] = useState(true)
@@ -33,6 +33,7 @@ export function TransactionsTable({ filters, platformFilter, categoryFilter }) {
         if (filters?.from) params.append('date_from', filters.from);
         if (filters?.to) params.append('date_to', filters.to);
         if (platformFilter && platformFilter !== 'all') params.append('platform', platformFilter);
+        if (userEmail) params.append('email', userEmail);
         // Add category filter if multiple categories are selected
         if (categoryFilter && categoryFilter.length > 0) {
           categoryFilter.forEach(cat => params.append('category', cat));

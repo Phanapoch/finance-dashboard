@@ -63,7 +63,8 @@ async def get_transactions_api(
     date_to: Optional[str] = Query(None, description="Filter by date to (YYYY-MM-DD)"),
     category: Optional[str] = Query(None, description="Filter by category"),
     transaction_type: Optional[str] = Query("expense", description="Filter by transaction type"),
-    platform: Optional[str] = Query(None, description="Filter by platform")
+    platform: Optional[str] = Query(None, description="Filter by platform"),
+    email: Optional[str] = Query("ice@imice.im", description="Filter by user email")
 ) -> Dict[str, Any]:
     """
     Get all transactions with optional filters.
@@ -73,6 +74,7 @@ async def get_transactions_api(
     - **category**: Category filter
     - **transaction_type**: Transaction type (expense/income)
     - **platform**: Platform filter (e.g., K PLUS, LINE Pay, Shopee, etc.)
+    - **email**: User email filter (default: ice@imice.im)
     """
     filters = {}
     if date_from:
@@ -85,6 +87,8 @@ async def get_transactions_api(
         filters['transaction_type'] = transaction_type
     if platform:
         filters['platform'] = platform
+    if email:
+        filters['email'] = email
 
     transactions = get_transactions(filters)
 
@@ -260,7 +264,8 @@ async def delete_item_api(
 @app.get("/api/summary/category")
 async def get_summary_by_category_api(
     date_from: Optional[str] = Query(None, description="Filter by date from (YYYY-MM-DD)"),
-    date_to: Optional[str] = Query(None, description="Filter by date to (YYYY-MM-DD)")
+    date_to: Optional[str] = Query(None, description="Filter by date to (YYYY-MM-DD)"),
+    email: Optional[str] = Query("ice@imice.im", description="Filter by user email")
 ) -> Dict[str, Any]:
     """
     Get transaction summary grouped by category for charts.
@@ -273,6 +278,8 @@ async def get_summary_by_category_api(
         filters['date_from'] = date_from
     if date_to:
         filters['date_to'] = date_to
+    if email:
+        filters['email'] = email
 
     summary = get_summary_by_category(filters)
     category_colors = get_category_colors()
@@ -297,7 +304,8 @@ async def get_summary_by_category_api(
 @app.get("/api/summary/date")
 async def get_summary_by_date_api(
     date_from: Optional[str] = Query(None, description="Filter by date from (YYYY-MM-DD)"),
-    date_to: Optional[str] = Query(None, description="Filter by date to (YYYY-MM-DD)")
+    date_to: Optional[str] = Query(None, description="Filter by date to (YYYY-MM-DD)"),
+    email: Optional[str] = Query("ice@imice.im", description="Filter by user email")
 ) -> Dict[str, Any]:
     """
     Get transaction summary grouped by date.
@@ -310,6 +318,8 @@ async def get_summary_by_date_api(
         filters['date_from'] = date_from
     if date_to:
         filters['date_to'] = date_to
+    if email:
+        filters['email'] = email
 
     summary = get_summary_by_date(filters)
 
@@ -424,7 +434,8 @@ async def get_balance_api() -> Dict[str, Any]:
 @app.get("/api/dashboard")
 async def get_dashboard_api(
     date_from: Optional[str] = Query(None, description="Filter by date from (YYYY-MM-DD)"),
-    date_to: Optional[str] = Query(None, description="Filter by date to (YYYY-MM-DD)")
+    date_to: Optional[str] = Query(None, description="Filter by date to (YYYY-MM-DD)"),
+    email: Optional[str] = Query("ice@imice.im", description="Filter by user email")
 ) -> Dict[str, Any]:
     """
     Get all dashboard data for quick loading.
@@ -434,6 +445,8 @@ async def get_dashboard_api(
         filters['date_from'] = date_from
     if date_to:
         filters['date_to'] = date_to
+    if email:
+        filters['email'] = email
 
     balance = get_balance(filters)
     transactions = get_transactions(filters)
