@@ -19,7 +19,7 @@ function App() {
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear())
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth() + 1)
   const [userEmail, setUserEmail] = useState('ice@imice.im')
-  const [availableEmails, setAvailableEmails] = useState(['ice@imice.im', '8ojo3j@gmail.com'])
+  const [availableEmails, setAvailableEmails] = useState(['ice@imice.im', 'j.sujarinee@gmail.com', 'filix.filikiss@gmail.com'])
   const [showAddModal, setShowAddModal] = useState(false)
   const [refreshTrigger, setRefreshTrigger] = useState(0)
 
