@@ -28,7 +28,7 @@ export function CategoryBreakdown({ filters, categoryFilter, userEmail }) {
       }
     };
     fetchCategorySummary();
-  }, [filters, categoryFilter])
+  }, [filters, categoryFilter, userEmail])
 
   const total = categories.reduce((sum, cat) => sum + (Number(cat.amount) || 0), 0)
 

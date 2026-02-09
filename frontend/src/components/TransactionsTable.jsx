@@ -49,7 +49,7 @@ export function TransactionsTable({ filters, platformFilter, categoryFilter, use
       }
     };
     fetchTransactions();
-  }, [filters, platformFilter, categoryFilter])
+  }, [filters, platformFilter, categoryFilter, userEmail])
 
   const toggleRow = (id) => {
     const newExpanded = new Set(expandedRows)

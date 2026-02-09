@@ -31,7 +31,7 @@ export function SpendingTrend({ filters, userEmail }) {
       }
     };
     fetchData();
-  }, [filters])
+  }, [filters, userEmail])
 
   const formatCurrency = (val) => "฿" + Number(val).toLocaleString();
 

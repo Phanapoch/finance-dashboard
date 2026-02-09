@@ -40,7 +40,7 @@ export function SummaryCards({ filters, categoryFilter, userEmail }) {
       }
     };
     fetchData();
-  }, [filters, categoryFilter]);
+  }, [filters, categoryFilter, userEmail]);
 
   const f = (v) => "฿ " + Math.abs(v).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
