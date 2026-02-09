@@ -9,6 +9,11 @@ A modern personal finance dashboard built with React (Vite) and FastAPI, designe
 - **Visual Analytics:** 
   - **Category Breakdown:** Pie chart showing expense distribution.
   - **Spending Trend:** Line chart visualizing spending patterns over time.
+- **AI-Powered Financial Insights:** 
+  - Integrated with local LLMs via Ollama (Qwen, Llama, Gemma, GLM).
+  - Support for custom prompts and model selection.
+  - Automated anomaly detection and duplicate identification.
+  - Actionable financial advice in Thai.
 - **Deep-Dive Transactions:** A detailed table with search functionality and expandable rows to see raw items from invoices (e.g., 7-Eleven details).
 
 ## 🛠 Tech Stack

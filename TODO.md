@@ -74,4 +74,5 @@
 
 ## Future Improvements
 - [x] **Multi-User Support:** Implement account isolation by filtering data by user email (Default: `ice@imice.im`).
-- [ ] **AI-Powered Insights:** Personalized spending advice and anomaly detection.
+- [x] **AI-Powered Insights:** Personalized spending advice and anomaly detection (Ollama-powered with GLM/Llama/Qwen).
+
