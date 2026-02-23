@@ -12,7 +12,7 @@ services:
       - /home/ice/.openclaw/workspace-finance/db:/data
     environment:
       - DATABASE_URL=sqlite:///data/finance.db
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    command: uvicorn app.main:app --host 127.0.0.1 --port 8001 --reload
     restart: unless-stopped
 
   frontend:
@@ -22,7 +22,7 @@ services:
     container_name: finance-frontend
     network_mode: host
     environment:
-      - VITE_API_URL=http://localhost:8000
+      - VITE_API_URL=http://192.168.0.145:8001
     depends_on:
       - backend
     restart: unless-stopped

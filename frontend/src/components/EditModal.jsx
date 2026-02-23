@@ -28,7 +28,18 @@ export function EditModal({ transaction, onClose, onSave }) {
         platform: transaction.platform || '',
         items: Array.isArray(transaction.items) ? transaction.items.map(item => {
           // Parse item string like "Name (x3)" or just "Name"
-          const match = item.match(/(.+?)\s*x(\d+)/)
+          // If item is already an object, use it directly
+          if (typeof item === 'object' && item !== null) {
+            return {
+              id: item.id || Math.random().toString(36).substr(2, 9),
+              name: item.name || '',
+              quantity: item.quantity || 1
+            }
+          }
+          
+          // Ensure item is a string before calling .match()
+          const itemStr = String(item || '')
+          const match = itemStr.match(/(.+?)\s*x(\d+)/)
           if (match) {
             return {
               id: Math.random().toString(36).substr(2, 9),
@@ -38,7 +49,7 @@ export function EditModal({ transaction, onClose, onSave }) {
           }
           return {
             id: Math.random().toString(36).substr(2, 9),
-            name: item.trim(),
+            name: itemStr.trim(),
             quantity: 1
           }
         }) : [{ id: Math.random().toString(36).substr(2, 9), name: '', quantity: 1 }]
@@ -108,9 +119,9 @@ export function EditModal({ transaction, onClose, onSave }) {
         // Delete all existing items
         if (existingTransaction.items) {
           for (const item of existingTransaction.items) {
-            // Extract item_id from item string (e.g., "Item Name (x3)" -> item_id)
-            // We need to store item_id in a more accessible way
-            const itemMatch = item.match(/^[^:]+: ([0-9]+)/)
+            // Ensure item is a string before calling .match()
+            const itemStr = typeof item === 'object' && item !== null ? (item.name || '') : String(item || '')
+            const itemMatch = itemStr.match(/^[^:]+: ([0-9]+)/)
             if (itemMatch) {
               const itemId = itemMatch[1]
               await fetch(`/api/transactions/${transaction.id}/items/${itemId}`, {
