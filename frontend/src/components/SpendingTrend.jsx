@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Loader2 } from 'lucide-react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 
-export function SpendingTrend({ filters, userEmail }) {
+export function SpendingTrend({ filters, platformFilter, categoryFilter, userEmail }) {
   const [spendingData, setSpendingData] = useState([])
   const [loading, setLoading] = useState(true)
 
@@ -13,6 +13,10 @@ export function SpendingTrend({ filters, userEmail }) {
         if (filters?.from) params.append('date_from', filters.from);
         if (filters?.to) params.append('date_to', filters.to);
         if (userEmail) params.append('email', userEmail);
+        if (platformFilter && platformFilter !== 'all') params.append('platform', platformFilter);
+        if (categoryFilter && categoryFilter.length > 0) {
+          categoryFilter.forEach(cat => params.append('category', cat));
+        }
 
         const response = await fetch(`/api/summary/date?${params.toString()}`);
         const data = await response.json();
@@ -31,7 +35,7 @@ export function SpendingTrend({ filters, userEmail }) {
       }
     };
     fetchData();
-  }, [filters, userEmail])
+  }, [filters, platformFilter, categoryFilter, userEmail])
 
   const formatCurrency = (val) => "฿" + Number(val).toLocaleString();
 

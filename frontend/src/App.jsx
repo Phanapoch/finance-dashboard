@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { DashboardLayout } from './components/DashboardLayout'
 import { SummaryCards } from './components/SummaryCards'
 import { CategoryBreakdown } from './components/CategoryBreakdown'
+import { PlatformBreakdown } from './components/PlatformBreakdown'
 import { SpendingTrend } from './components/SpendingTrend'
 import { TransactionsTable } from './components/TransactionsTable'
 import { AddTransactionModal } from './components/AddTransactionModal'
@@ -318,8 +319,11 @@ function App() {
 
         <SummaryCards filters={dateRange} platformFilter={platformFilter} categoryFilter={categoryFilter} userEmail={userEmail} />
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-          <CategoryBreakdown filters={dateRange} categoryFilter={categoryFilter} userEmail={userEmail} />
-          <SpendingTrend filters={dateRange} userEmail={userEmail} />
+          <CategoryBreakdown filters={dateRange} platformFilter={platformFilter} categoryFilter={categoryFilter} userEmail={userEmail} />
+          <PlatformBreakdown filters={dateRange} platformFilter={platformFilter} categoryFilter={categoryFilter} userEmail={userEmail} />
+        </div>
+        <div className="mt-6">
+          <SpendingTrend filters={dateRange} platformFilter={platformFilter} categoryFilter={categoryFilter} userEmail={userEmail} />
         </div>
         <div className="space-y-4">
           <h2 className="text-xl font-bold text-gray-900 dark:text-white px-1 transition-colors duration-300">

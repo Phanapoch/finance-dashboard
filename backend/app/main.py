@@ -266,6 +266,8 @@ async def delete_item_api(
 async def get_summary_by_category_api(
     date_from: Optional[str] = Query(None, description="Filter by date from (YYYY-MM-DD)"),
     date_to: Optional[str] = Query(None, description="Filter by date to (YYYY-MM-DD)"),
+    platform: Optional[str] = Query(None, description="Filter by platform"),
+    category: Optional[List[str]] = Query(None, description="Filter by category"),
     email: Optional[str] = Query("ice@imice.im", description="Filter by user email")
 ) -> Dict[str, Any]:
     """
@@ -279,6 +281,10 @@ async def get_summary_by_category_api(
         filters['date_from'] = date_from
     if date_to:
         filters['date_to'] = date_to
+    if platform:
+        filters['platform'] = platform
+    if category:
+        filters['category'] = category
     if email:
         filters['email'] = email
 
@@ -306,6 +312,8 @@ async def get_summary_by_category_api(
 async def get_summary_by_date_api(
     date_from: Optional[str] = Query(None, description="Filter by date from (YYYY-MM-DD)"),
     date_to: Optional[str] = Query(None, description="Filter by date to (YYYY-MM-DD)"),
+    platform: Optional[str] = Query(None, description="Filter by platform"),
+    category: Optional[List[str]] = Query(None, description="Filter by category"),
     email: Optional[str] = Query("ice@imice.im", description="Filter by user email")
 ) -> Dict[str, Any]:
     """
@@ -319,6 +327,10 @@ async def get_summary_by_date_api(
         filters['date_from'] = date_from
     if date_to:
         filters['date_to'] = date_to
+    if platform:
+        filters['platform'] = platform
+    if category:
+        filters['category'] = category
     if email:
         filters['email'] = email
 
@@ -334,7 +346,10 @@ async def get_summary_by_date_api(
 @app.get("/api/summary/platform")
 async def get_summary_by_platform_api(
     date_from: Optional[str] = Query(None, description="Filter by date from (YYYY-MM-DD)"),
-    date_to: Optional[str] = Query(None, description="Filter by date to (YYYY-MM-DD)")
+    date_to: Optional[str] = Query(None, description="Filter by date to (YYYY-MM-DD)"),
+    platform: Optional[str] = Query(None, description="Filter by platform"),
+    category: Optional[List[str]] = Query(None, description="Filter by category"),
+    email: Optional[str] = Query("ice@imice.im", description="Filter by user email")
 ) -> Dict[str, Any]:
     """
     Get transaction summary grouped by platform.
@@ -347,7 +362,14 @@ async def get_summary_by_platform_api(
         filters['date_from'] = date_from
     if date_to:
         filters['date_to'] = date_to
+    if platform:
+        filters['platform'] = platform
+    if category:
+        filters['category'] = category
+    if email:
+        filters['email'] = email
 
+    from .database import get_db_connection
     with get_db_connection() as conn:
         cursor = conn.cursor()
         query = '''
@@ -363,6 +385,20 @@ async def get_summary_by_platform_api(
         if filters.get('date_to'):
             query += " AND date <= ?"
             params.append(filters['date_to'])
+        if filters.get('platform'):
+            query += " AND platform = ?"
+            params.append(filters['platform'])
+        if filters.get('category'):
+            if isinstance(filters['category'], list):
+                placeholders = ', '.join(['?'] * len(filters['category']))
+                query += f" AND category IN ({placeholders})"
+                params.extend(filters['category'])
+            else:
+                query += " AND category = ?"
+                params.append(filters['category'])
+        if filters.get('email'):
+            query += " AND email_user = ?"
+            params.append(filters['email'])
 
         query += " GROUP BY platform ORDER BY total DESC"
         cursor.execute(query, params)

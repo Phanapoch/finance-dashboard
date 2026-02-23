@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Loader2 } from 'lucide-react'
 import { CategoryPieChart } from './CategoryPieChart'
 
-export function CategoryBreakdown({ filters, categoryFilter, userEmail }) {
+export function CategoryBreakdown({ filters, platformFilter, categoryFilter, userEmail }) {
   const [categories, setCategories] = useState([])
   const [loading, setLoading] = useState(true)
 
@@ -13,6 +13,7 @@ export function CategoryBreakdown({ filters, categoryFilter, userEmail }) {
         if (filters?.from) params.append('date_from', filters.from);
         if (filters?.to) params.append('date_to', filters.to);
         if (userEmail) params.append('email', userEmail);
+        if (platformFilter && platformFilter !== 'all') params.append('platform', platformFilter);
         // Add category filter if multiple categories are selected
         if (categoryFilter && categoryFilter.length > 0) {
           categoryFilter.forEach(cat => params.append('category', cat));
@@ -28,7 +29,7 @@ export function CategoryBreakdown({ filters, categoryFilter, userEmail }) {
       }
     };
     fetchCategorySummary();
-  }, [filters, categoryFilter, userEmail])
+  }, [filters, platformFilter, categoryFilter, userEmail])
 
   const total = categories.reduce((sum, cat) => sum + (Number(cat.amount) || 0), 0)
 

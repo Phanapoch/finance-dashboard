@@ -190,6 +190,17 @@ def get_summary_by_category(filters: Optional[Dict[str, Any]] = None) -> List[Di
             if filters.get('date_to'):
                 query += " AND date <= ?"
                 params.append(filters['date_to'])
+            if filters.get('platform'):
+                query += " AND platform = ?"
+                params.append(filters['platform'])
+            if filters.get('category'):
+                if isinstance(filters['category'], list):
+                    placeholders = ', '.join(['?'] * len(filters['category']))
+                    query += f" AND category IN ({placeholders})"
+                    params.extend(filters['category'])
+                else:
+                    query += " AND category = ?"
+                    params.append(filters['category'])
             if filters.get('email'):
                 query += " AND email_user = ?"
                 params.append(filters['email'])
@@ -217,6 +228,17 @@ def get_summary_by_date(filters: Optional[Dict[str, Any]] = None) -> List[Dict]:
             if filters.get('date_to'):
                 query += " AND date <= ?"
                 params.append(filters['date_to'])
+            if filters.get('platform'):
+                query += " AND platform = ?"
+                params.append(filters['platform'])
+            if filters.get('category'):
+                if isinstance(filters['category'], list):
+                    placeholders = ', '.join(['?'] * len(filters['category']))
+                    query += f" AND category IN ({placeholders})"
+                    params.extend(filters['category'])
+                else:
+                    query += " AND category = ?"
+                    params.append(filters['category'])
             if filters.get('email'):
                 query += " AND email_user = ?"
                 params.append(filters['email'])
